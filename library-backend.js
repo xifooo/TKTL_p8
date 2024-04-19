@@ -140,6 +140,8 @@ const typeDefs = `
       bookCount: () => books.length,
       authorCount: () => authors.length,
       allBooks: (root, args) => {
+        // 根据 genre 与 author 参数筛选 books，逻辑且，取交集
+        // 没有参数就返回全部 books
         if (args.genre || args.author) {
           return books.filter(
             b => 
@@ -152,7 +154,8 @@ const typeDefs = `
         }
       },
       allAuthors: () => {
-        allNames = authors.map(a => a.name)
+        // 返回所有 author 和其著书数
+        let allNames = authors.map(a => a.name)
         let allAuthors = []
         for (let name of allNames) {
           let booksOfAuthor = books.filter(b => b.author === name)
@@ -163,16 +166,28 @@ const typeDefs = `
   },
   Mutation: {
     addBook: (root, args) => {
-      books.push({...args})
-      if (!authors.includes(args.author)){
-        authors.push({
+      // 添加一个 book，自动添加新的 author与 book
+      if (authors.filter(a => a.name === args.author)==false) {
+        let newAuthor = {
           name: args.author,
-          born: null, 
+          born: null,
           id: uuid()
-        })
+        }
+        authors.push(newAuthor)
       }
+      let newBook = {...args}
+      books.push(newBook)
+      return newBook
+      // if (!authors.includes(args.author)){
+      //   authors.push({
+      //     name: args.author,
+      //     born: null, 
+      //     id: uuid()
+      //   })
+      // }
     },
     editAuthor: (root, args) => {
+      // 修改符合条件的 author 信息，没有则返回 null
       for (let a of authors) {
         if (a.name === args.name) {
           a.name = args.name
