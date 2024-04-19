@@ -128,6 +128,10 @@ const typeDefs = `
       published: Int!
       genres: [String!]!
     ): Book
+    editAuthor(
+      name: String!
+      setBornTo: Int!
+    ): Author
   }
   `
   
@@ -167,6 +171,16 @@ const typeDefs = `
           id: uuid()
         })
       }
+    },
+    editAuthor: (root, args) => {
+      for (let a of authors) {
+        if (a.name === args.name) {
+          a.name = args.name
+          a.born = args.setBornTo
+          return a
+        }
+      }
+      return null
     }
   }
 }
